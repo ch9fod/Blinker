@@ -3,6 +3,13 @@
 #include <Adafruit_GFX.h>
 #include "bici.h"
 
+// Idle states
+#define rectangulos 0
+#define torreta 1
+#define knight 2
+#define lastidlestate torreta
+#define firstidlestate rectangulos
+
 Adafruit_8x8matrix matrix = Adafruit_8x8matrix();
 Adafruit_8x8matrix matrix2 = Adafruit_8x8matrix();
 int8_t a = 0;
@@ -12,6 +19,8 @@ int ML = 0;
 int MR = 0;
 int MS = 0;
 int MI = 0;
+
+int idlestate = rectangulos;
 
 void setup() {
   Serial.begin(9600);
@@ -38,7 +47,7 @@ void loop()
   switch (switchstate) 
   {
     case 0:
-      rectangulos();
+      idle();
       break;
     case 1:
       left();
@@ -67,48 +76,150 @@ void loop()
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
-void rectangulos(void) {
-  switch (MI) {
-  case 0:
-    clearmatrix();
-    matrix.drawRect(3,3, 2,2, LED_ON);
-    matrix2.drawRect(3,3, 2,2, LED_ON);
-    matrix.writeDisplay();  
-    matrix2.writeDisplay();  
-    delay(200);
-    MI = 1;
-    break;
-///////////////////////        
-  case 1:
-    clearmatrix();
-    matrix.drawRect(2,2, 4,4, LED_ON);
-    matrix2.drawRect(2,2, 4,4, LED_ON);
-    matrix.writeDisplay();  
-    matrix2.writeDisplay();
-    delay(200);
-    MI = 2;
-    break;
-///////////////////////        
-  case 2:
-    clearmatrix();
-    matrix.drawRect(1,1, 6,6, LED_ON);
-    matrix2.drawRect(1,1, 6,6, LED_ON);
-    matrix.writeDisplay();  
-    matrix2.writeDisplay();
-    delay(200);
-    MI = 3;
-    break;
-///////////////////////    
-  case 3:
-    clearmatrix();
-    matrix.drawRect(0,0, 8,8, LED_ON);
-    matrix2.drawRect(0,0, 8,8, LED_ON);
-    matrix.writeDisplay();
-    matrix2.writeDisplay();
-    delay(200);
-    MI = 0;
-    break;    
+void idle(void) {
+  int vueltas = 0;
+  while (vueltas < 4) {
+  // 4 rectangulos    
+    switch (MI) {
+    case 0:
+      if (idlestate == rectangulos){
+        clearmatrix();
+        matrix.drawRect(3,3, 2,2, LED_ON);
+        matrix2.drawRect(3,3, 2,2, LED_ON);
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(200);
+        MI = 1;
+        break;        
+      }
+//////////////////////
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.fillRect(0,0,8,4, LED_ON);
+        matrix2.fillRect(0,4,8,4, LED_ON);
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 1;
+        break;        
+      }
+//------------------//    
+    case 1:
+      if (idlestate == rectangulos){
+        clearmatrix();
+        matrix.drawRect(2,2, 4,4, LED_ON);
+        matrix2.drawRect(2,2, 4,4, LED_ON);
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();
+        delay(200);
+        MI = 2;
+        break;        
+      }
+//////////////////////
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 2;
+        break;        
+      }
+//------------------//         
+    case 2:
+      if (idlestate == rectangulos){
+        clearmatrix();
+        matrix.drawRect(1,1, 6,6, LED_ON);
+        matrix2.drawRect(1,1, 6,6, LED_ON);
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();
+        delay(200);
+        MI = 3;
+        break;        
+      }
+//////////////////////
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.fillRect(0,0,8,4, LED_ON);
+        matrix2.fillRect(0,4,8,4, LED_ON);
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 3;
+        break;        
+      }
+//------------------//  
+    case 3:
+      if (idlestate == rectangulos){
+        clearmatrix();
+        matrix.drawRect(0,0, 8,8, LED_ON);
+        matrix2.drawRect(0,0, 8,8, LED_ON);
+        matrix.writeDisplay();
+        matrix2.writeDisplay();
+        delay(200);
+        MI = 0;
+        vueltas++;
+        break;          
+      }
+//////////////////////
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 4;
+        break;        
+      }
+//------------------//      
+    case 4:
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.fillRect(0,4,8,4, LED_ON);
+        matrix2.fillRect(0,0,8,4, LED_ON);        
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 5;
+        break; 
+      }
+//------------------//           
+    case 5:
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 6;
+        break;  
+      }   
+//------------------//       
+    case 6:
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.fillRect(0,4,8,4, LED_ON);
+        matrix2.fillRect(0,0,8,4, LED_ON);     
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 7;
+        break;    
+      }  
+//------------------//       
+    case 7:
+      if (idlestate == torreta){
+        clearmatrix();
+        matrix.writeDisplay();  
+        matrix2.writeDisplay();  
+        delay(100);
+        MI = 0;
+        vueltas++;
+        break;    
+      }  
+//------------------//       
+    }  
   }
+  idlestate++;
+  if (idlestate > lastidlestate)
+    idlestate = firstidlestate;
 } 
 
 ///////////////////////////////////////////////////////////////////////
