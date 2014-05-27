@@ -1,6 +1,6 @@
 #include <Wire.h>
-#include <Adafruit_LEDBackpack.h>
-#include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
+#include "Adafruit_GFX.h"
 #include "bici.h"
 
 // Idle states
@@ -19,8 +19,11 @@ int ML = 0;
 int MR = 0;
 int MS = 0;
 int MI = 0;
+int vueltas = 0; //Vueltas en idle
 
 int idlestate = rectangulos;
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -77,64 +80,71 @@ void loop()
 ///////////////////////////////////////////////////////////////////////
 
 void idle(void) {
-  int vueltas = 0;
-  while (vueltas < 4) {
-  // 4 rectangulos    
-    switch (MI) {
+  
+  if(idlestate == rectangulos)
+    animRect();
+  else if (idlestate == torreta)
+    animTorreta();
+  else if (idlestate == knight)
+    animKnight();
+  else
+    animRect();
+}
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+void animRect(void){
+  switch (MI) {
     case 0:
-      if (idlestate == rectangulos){
-        clearmatrix();
-        matrix.drawRect(3,3, 2,2, LED_ON);
-        matrix2.drawRect(3,3, 2,2, LED_ON);
-        matrix.writeDisplay();  
-        matrix2.writeDisplay();  
-        delay(200);
-        MI = 1;
-        break;        
-      }
-//////////////////////
-      if (idlestate == torreta){
-        clearmatrix();
-        matrix.fillRect(0,0,8,4, LED_ON);
-        matrix2.fillRect(0,4,8,4, LED_ON);
-        matrix.writeDisplay();  
-        matrix2.writeDisplay();  
-        delay(100);
-        MI = 1;
-        break;        
-      }
-//------------------//    
+      writeRect2matrix(3,3,2,2,3,3,2,2,200);
+      MI = 1;
+      break;  
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+void animTorreta(void){
+  switch (MI) {
+    case 0:  
+      writeRect2matrix(0,0,8,4,0,4,8,4,100);
+      MI = 1;
+      break; 
+  }
+}  
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+void animKnight(void){
+  switch (MI) { 
+    case 0:  
+      writeRect2matrix(0,0,8,4,0,4,8,4,100);
+      MI = 1;
+      break;   
+  }
+}  
+/* 
     case 1:
       if (idlestate == rectangulos){
-        clearmatrix();
-        matrix.drawRect(2,2, 4,4, LED_ON);
-        matrix2.drawRect(2,2, 4,4, LED_ON);
-        matrix.writeDisplay();  
-        matrix2.writeDisplay();
-        delay(200);
-        MI = 2;
-        break;        
+        writeRect2matrix(2,2,4,4,2,2,4,4,200);
       }
 //////////////////////
       if (idlestate == torreta){
         clearmatrix();
         matrix.writeDisplay();  
         matrix2.writeDisplay();  
-        delay(100);
-        MI = 2;
-        break;        
+        delay(100);      
       }
+      MI = 2;
+      break;  
 //------------------//         
     case 2:
+      Serial.println("Caso 2");    
       if (idlestate == rectangulos){
-        clearmatrix();
-        matrix.drawRect(1,1, 6,6, LED_ON);
-        matrix2.drawRect(1,1, 6,6, LED_ON);
-        matrix.writeDisplay();  
-        matrix2.writeDisplay();
-        delay(200);
-        MI = 3;
-        break;        
+        writeRect2matrix(1,1,6,6,1,1,6,6,200);
       }
 //////////////////////
       if (idlestate == torreta){
@@ -143,21 +153,16 @@ void idle(void) {
         matrix2.fillRect(0,4,8,4, LED_ON);
         matrix.writeDisplay();  
         matrix2.writeDisplay();  
-        delay(100);
-        MI = 3;
-        break;        
+        delay(100);      
       }
+      MI = 3;
+      break;         
 //------------------//  
     case 3:
+      Serial.println("Caso 3");    
       if (idlestate == rectangulos){
-        clearmatrix();
-        matrix.drawRect(0,0, 8,8, LED_ON);
-        matrix2.drawRect(0,0, 8,8, LED_ON);
-        matrix.writeDisplay();
-        matrix2.writeDisplay();
-        delay(200);
+        writeRect2matrix(0,0,8,8,0,0,8,8,200);
         MI = 0;
-        vueltas++;
         break;          
       }
 //////////////////////
@@ -171,6 +176,7 @@ void idle(void) {
       }
 //------------------//      
     case 4:
+      Serial.println("Caso 4");    
       if (idlestate == torreta){
         clearmatrix();
         matrix.fillRect(0,4,8,4, LED_ON);
@@ -183,6 +189,7 @@ void idle(void) {
       }
 //------------------//           
     case 5:
+      Serial.println("Caso 5");    
       if (idlestate == torreta){
         clearmatrix();
         matrix.writeDisplay();  
@@ -193,6 +200,7 @@ void idle(void) {
       }   
 //------------------//       
     case 6:
+      Serial.println("Caso 6");    
       if (idlestate == torreta){
         clearmatrix();
         matrix.fillRect(0,4,8,4, LED_ON);
@@ -205,22 +213,21 @@ void idle(void) {
       }  
 //------------------//       
     case 7:
+      Serial.println("Caso 7");    
       if (idlestate == torreta){
         clearmatrix();
         matrix.writeDisplay();  
         matrix2.writeDisplay();  
         delay(100);
         MI = 0;
-        vueltas++;
         break;    
       }  
 //------------------//       
     }  
-  }
-  idlestate++;
-  if (idlestate > lastidlestate)
-    idlestate = firstidlestate;
-} 
+  //idlestate++;
+ // if (idlestate > lastidlestate)
+ //   idlestate = firstidlestate;
+*/
 
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -340,7 +347,7 @@ void checkswitch (void)
 {
   if(!digitalRead(A2))
   {
-    while(!digitalRead(A2))
+    while(!digitalRead(A2)) //While Brake
       {
         clearmatrix();
         matrix.setBrightness(15);
@@ -352,12 +359,14 @@ void checkswitch (void)
       }
     matrix.setBrightness(0);
     matrix2.setBrightness(0);
+    MI = 0;       //Reset idle state
+    vueltas = 0;  //Reset vueltas en idle
   }
-  if(!digitalRead(A0))
+  if(!digitalRead(A0)) //Left
   {
     switchstate = 1; 
   }
-  else if (!digitalRead(A1))
+  else if (!digitalRead(A1)) //Right
   {
     switchstate = 2;
   }
@@ -368,4 +377,14 @@ void checkswitch (void)
     else
       switchstate = 0;
   }
+}
+
+void writeRect2matrix (byte m1x1, byte m1y1, byte m1x2, byte m1y2, byte m2x1, byte m2y1, byte m2x2, byte m2y2, byte Delay)
+{
+  clearmatrix();
+  matrix.drawRect(m1x1, m1y1, m1x2, m1y2, LED_ON);
+  matrix2.drawRect(m2x1, m2y1, m2x2, m2y2, LED_ON);
+  matrix.writeDisplay();  
+  matrix2.writeDisplay();  
+  delay(Delay);
 }
